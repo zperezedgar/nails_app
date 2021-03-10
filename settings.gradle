@@ -1,0 +1,3 @@
+include ':openCV412'
+include ':app'
+rootProject.name = "nails"
