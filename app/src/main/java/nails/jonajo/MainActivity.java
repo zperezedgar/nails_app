@@ -1,21 +1,12 @@
 package nails.jonajo;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-
 import android.Manifest;
-import android.content.ClipData;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -25,19 +16,18 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     int illum_patches=4;
     static Uri photoURI;
     public String ssdVersion = "tflite_nail_640.tflite";
+    float minscore = 0.81f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -297,14 +288,13 @@ public class MainActivity extends AppCompatActivity {
         float[] orgsize = {(float) mat8UC.size().width, (float) mat8UC.size().height};
         int nailpatches = illum_patches;
         int illum_ofset = 4;
-        int size = 640;
-        float minscore = 0.81f;
+        int resolution = 720;
         Boolean showBoxes = false;
 
         startTime = System.nanoTime();
         Mat result = ImageProcessing.paintNail(mat8UC, colormat8UC, nailmaskmat8UC, rthumbmaskmat8UC, lthumbmaskmat8UC,
                 boxes, scores, angles, point2coords, isleftHand, nailsize, orgsize, nailpatches, illum_ofset,
-                size, minscore, showBoxes);
+                resolution, minscore, showBoxes);
         endTime = System.nanoTime();
         tv3.setText("Coloring Time = " + (endTime - startTime)*0.000001 + "ms");
 
@@ -358,12 +348,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.ssd320) {
-                    ssdVersion = "ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu_fingernails_quant.tflite";
+                    ssdVersion = "ssd_mobilenet_v2_fingernails_quant.tflite";
                     tvSSD.setText("SSD 320X320");
+                    minscore = 0.36f;
                     return true;
                 } else if (item.getItemId() == R.id.ssd640) {
                     ssdVersion = "tflite_nail_640.tflite";
                     tvSSD.setText("SSD 640X640");
+                    minscore = 0.81f;
                     return true;
                 }  else{
                     return false;

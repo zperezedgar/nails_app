@@ -5,8 +5,6 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import org.opencv.android.Utils;
@@ -23,7 +21,6 @@ import org.tensorflow.lite.support.common.ops.NormalizeOp;
 import org.tensorflow.lite.support.image.ImageProcessor;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.image.ops.ResizeOp;
-import org.tensorflow.lite.support.image.ops.Rot90Op;
 
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -17,8 +17,6 @@ import java.util.ArrayList;
 
 import static org.opencv.core.Core.add;
 import static org.opencv.core.Core.bitwise_and;
-import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
-import static org.opencv.imgproc.Imgproc.COLOR_BGR2RGB;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2GRAY;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX;
@@ -140,6 +138,13 @@ public class ImageProcessing {
         return bmp;
     }
 
+    /**
+     * This function rotates image by angle.
+     *
+     * @param image     //Image to be rotated counter-clockwise.
+     * @param dst     //Destination mat.
+     * @param angle     //Angle to rotate image in degrees. Negative values mean clockwise rotation.
+     */
     public static void rotateImage(Mat image, Mat dst, float angle){
         Point imgCenter = new Point(image.size().width/2, image.size().height/2);
         Mat rotMat = getRotationMatrix2D(imgCenter, angle, 1.0);
@@ -149,6 +154,12 @@ public class ImageProcessing {
         image.copyTo(dst);
     }
 
+    /**
+     * This function computes from a mean value the alpha and beta values needed to perform illumination change.
+     *
+     * @param mean    //Mean value used to compute alpha and beta.
+     * @return //Array containing the alpha and beta values computed.
+     */
     public static float[] getBetaAlpha(float mean){
         //Log.i("Mean= ", String.valueOf(mean));
         float alpha = 2 - 2*(mean / 255.f);
@@ -157,6 +168,12 @@ public class ImageProcessing {
         return new float[]{alpha, beta};
     }
 
+    /**
+     * This function computes the mean value of mat.
+     *
+     * @param mat     //1D mat.
+     * @return //Mean value of mat.
+     */
     public static float meanMat(Mat mat){
         int columns = (int) mat.size().width;
         int rows = (int) mat.size().height;
@@ -175,18 +192,42 @@ public class ImageProcessing {
         return mean;
     }
 
+    /**
+     * This function performs image processing that paint nails.
+     *
+     * @param frame     //Image in RGB format containing a single hand whose nails we'll add color.
+     *            The wrist of the hand needs to be visible for the algorithm to work properly.
+     * @param color //Image in RGB format containing the color we want to add to the nails.
+     * @param nail_mask //A mask in RGB format containing the generic shape of a nail.
+     * @param rthumb_mask //A mask in RGB format containing the generic shape of a right thumb.
+     * @param lthumb_mask //A mask in RGB format containing the generic shape of a left thumb.
+     * @param boxespred //The coordinates predicted for the bounding box of each nail.
+     * @param scorespred //The scores of the bounding boxes predicted.
+     * @param angles //The rotation angles for each finger.
+     * @param point2coords //The coordinates of the point P2=(x2,y2) used to compute the angles.
+     * @param isLeftHand //Indicates if the image to be processed is a left or right hand.
+     * @param nailsize //String indicating the desired size of the final nail (can be "small", "medium", or "large").
+     * @param orgsize //Original size of frame before processing.
+     * @param nailpatches //Number of local patches used to adjust illumination.
+     * @param illum_offset //This value increases the number of pixels used to average illumination.
+     * @param resolution //Resolution used during the coloring process, it can be the size of the square image used in the prediction
+     *           of the bounding boxes or any larger or smaller value.
+     * @param minscore //Minimum score needed to consider that the bounding box predicted has a nail in it.
+     * @param showBoxes //Whether we want to display or not the bounding boxes and the angles provided for the image.
+     * @return //The processed image with nails painted.
+     */
     public static Mat paintNail(Mat frame, Mat color, Mat nail_mask, Mat rthumb_mask, Mat lthumb_mask,
                                    float[][] boxespred, float[] scorespred, float[] angles, float[][] point2coords,
                                    Boolean isLeftHand, String nailsize, float[] orgsize, int  nailpatches,
-                                   int illum_offset, int size, float minscore, Boolean showBoxes){
+                                   int illum_offset, int resolution, float minscore, Boolean showBoxes){
 
-        Size modelsize = new Size(size, size);
+        Size modelsize = new Size(resolution, resolution);
         Mat image = new Mat();
         int ymin_raw, xmin_raw, ymax_raw, xmax_raw, xminoff, yminoff, xmaxoff, ymaxoff, ymin, ymax, xmin, xmax;
         Boolean fingerfound;
         float angle=0;
         int finger=0;
-        float factor = size/224.f; // landmarks are obtained with images of size 224X224
+        float factor = resolution/224.f; // landmarks are obtained with images of size 224X224
 
         if(frame.size() != modelsize){
             resize(frame, image, modelsize);
@@ -196,7 +237,7 @@ public class ImageProcessing {
 
         for(int i=0; i<boxespred.length; i++){
             for(int j=0; j<boxespred[i].length; j++){
-                boxespred[i][j] = boxespred[i][j] * size;
+                boxespred[i][j] = boxespred[i][j] * resolution;
             }
         }
 
@@ -243,11 +284,11 @@ public class ImageProcessing {
                 // assert we get correct values
                 if(ymin<0){
                     ymin=0;
-                } else if(xmin<0){
+                } if(xmin<0){
                     xmin=0;
-                } else if(ymax > image.size().height){
+                } if(ymax > image.size().height){
                     ymax = (int) Math.round(image.size().height);
-                } else if(xmax > image.size().width){
+                } if(xmax > image.size().width){
                     xmax = (int) Math.round(image.size().width);
                 }
                 /////////////////////////
@@ -291,6 +332,10 @@ public class ImageProcessing {
                 }
                 /////////////////////////
 
+                // Check submat size will not equal image size
+                if(((int) Math.round(image.size().width))==(xmax-xmin) && ((int) Math.round(image.size().height)==(ymax-ymin))){
+                    break;
+                }
                 Mat nail = image.submat(ymin, ymax, xmin, xmax);
                 Mat nail_raw = image.submat(ymin_raw, ymax_raw ,xmin_raw, xmax_raw);
 
