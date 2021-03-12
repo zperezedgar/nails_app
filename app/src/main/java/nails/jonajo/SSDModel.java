@@ -46,10 +46,12 @@ public class SSDModel {
         runSSDModel();
     }
 
+    // return coordinates of the predicted bounding boxes
     public float[][] getBoxes(){
         return mpredBoxes[0];
     }
 
+    // return scores of the predicted bounding boxes
     public float[] getScores(){
         return mpredScores[0];
     }
