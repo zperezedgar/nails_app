@@ -282,7 +282,7 @@ public class ImageProcessing {
                 }
 
                 // assert we get correct values
-                if(ymin<0){
+                if(ymin<0){ //check values
                     ymin=0;
                 } if(xmin<0){
                     xmin=0;
@@ -290,6 +290,14 @@ public class ImageProcessing {
                     ymax = (int) Math.round(image.size().height);
                 } if(xmax > image.size().width){
                     xmax = (int) Math.round(image.size().width);
+                } if(ymin_raw<0){ // check raw values
+                    ymin_raw=0;
+                } if(xmin_raw<0){
+                    xmin_raw=0;
+                } if(ymax_raw > image.size().height){
+                    ymax_raw = (int) Math.round(image.size().height);
+                } if(xmax_raw > image.size().width){
+                    xmax_raw = (int) Math.round(image.size().width);
                 }
                 /////////////////////////
 
