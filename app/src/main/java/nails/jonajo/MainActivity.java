@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     double endTime;
     double totalstartTime;
     double totalendTime;
-    int illum_patches=4;
+    int illum_patches=5;
     static Uri photoURI;
     public String ssdVersion = "tflite_nail_640.tflite";
     float minscore = 0.81f;
@@ -287,8 +287,8 @@ public class MainActivity extends AppCompatActivity {
         String nailsize = "medium";
         float[] orgsize = {(float) mat8UC.size().width, (float) mat8UC.size().height};
         int nailpatches = illum_patches;
-        int illum_ofset = 4;
-        int resolution = 720;
+        int illum_ofset = 6;
+        int resolution = 1280;
         Boolean showBoxes = false;
 
         startTime = System.nanoTime();

@@ -253,10 +253,10 @@ public class ImageProcessing {
                 /////////////////////////
                 // check is nail's size is normal, medium or large
                 if(nailsize.equals("medium")){
-                    xminoff=10;
-                    yminoff=16;
-                    xmaxoff=10;
-                    ymaxoff=12;
+                    xminoff=19;
+                    yminoff=23;
+                    xmaxoff=19;
+                    ymaxoff=19;
                     ymin = ymin_raw - yminoff;
                     ymax = ymax_raw + ymaxoff;
                     xmin = xmin_raw - xminoff;
@@ -341,7 +341,10 @@ public class ImageProcessing {
                 /////////////////////////
 
                 // Check submat size will not equal image size
-                if(((int) Math.round(image.size().width))==(xmax-xmin) && ((int) Math.round(image.size().height)==(ymax-ymin))){
+                if(((int) Math.round(image.size().width))<=(xmax-xmin) || ((int) Math.round(image.size().height)<=(ymax-ymin))){
+                    break;
+                }
+                if(((int) Math.round(image.size().width))<=(xmax_raw-xmin_raw) || ((int) Math.round(image.size().height)<=(ymax_raw-ymin_raw))){
                     break;
                 }
                 Mat nail = image.submat(ymin, ymax, xmin, xmax);
@@ -408,6 +411,9 @@ public class ImageProcessing {
                     if(widthend > widthHSV){
                         widthend = widthHSV;
                     }
+                    if(widthend - widthstart <=0){
+                        break;
+                    }
 
                     //use quadrants to adjust illumination
                     for(int j=0; j<nailpatches; j++){
@@ -415,6 +421,9 @@ public class ImageProcessing {
                         int heightend = (j+1)*(areaheight) + illum_offset;
                         if(heightend > heightHSV){
                             heightend = heightHSV;
+                        }
+                        if(heightend - heightstart <=0){
+                            break;
                         }
                         Mat nailpatch = nailmaskedinvHSV.submat(heightstart, heightend, widthstart, widthend); // quadrants
                         Mat colorpatch = newcolor.submat(heightstart, heightend, widthstart, widthend); // quadrants
@@ -433,8 +442,15 @@ public class ImageProcessing {
                 bitwise_and(newcolor, newcolor, finalcolor, mask_inv);
                 Mat nail_rawmaskedinv = new Mat();
                 bitwise_and(nail_raw, nail_raw, nail_rawmaskedinv, nail_rawmask_inv);
-                Point point = new Point(Math.round(nail_raw.size().width/2)+xminoff, Math.round(nail_raw.size().height/2)+yminoff);
-                seamlessClone(nail_raw, finalcolor, nail_rawmaskedinv, point, finalcolor, MONOCHROME_TRANSFER);
+                if(Math.round(nail_raw.size().width/2)+xminoff >=nail_raw.size().width || Math.round(nail_raw.size().height/2)+yminoff >=nail_raw.size().height){
+                    Point point = new Point(Math.round(nail_raw.size().width/2), Math.round(nail_raw.size().height/2));
+                    seamlessClone(nail_raw, finalcolor, nail_rawmaskedinv, point, finalcolor, MONOCHROME_TRANSFER);
+                } else{
+                    Point point = new Point(Math.round(nail_raw.size().width/2)+xminoff, Math.round(nail_raw.size().height/2)+yminoff);
+                    seamlessClone(nail_raw, finalcolor, nail_rawmaskedinv, point, finalcolor, MONOCHROME_TRANSFER);
+                }
+
+                //seamlessClone(nail_raw, finalcolor, nail_rawmaskedinv, point, finalcolor, MONOCHROME_TRANSFER);
 
                 //////////
                 Mat mixed = new Mat();
