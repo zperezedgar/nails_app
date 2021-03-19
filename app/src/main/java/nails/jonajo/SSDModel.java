@@ -117,13 +117,13 @@ public class SSDModel {
             } else {
                 // if the GPU is not supported, run on 4 threads
                 options.setNumThreads(4);
-                Toast.makeText(mContext, "GPU Not Supported!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "GPU Not Supported!", Toast.LENGTH_LONG).show();
             }
         } else {
             //Do not use GPU delegates, use 4 threads instead
             options.setNumThreads(4);
             if(museGPU){
-                Toast.makeText(mContext, "GPU Not Supported!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "GPU Not Supported!", Toast.LENGTH_LONG).show();
             }
         }
 
