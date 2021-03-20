@@ -20,9 +20,11 @@ import static org.opencv.core.Core.bitwise_and;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2GRAY;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX;
+import static org.opencv.imgproc.Imgproc.GaussianBlur;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY_INV;
 import static org.opencv.imgproc.Imgproc.cvtColor;
 import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
+import static org.opencv.imgproc.Imgproc.medianBlur;
 import static org.opencv.imgproc.Imgproc.putText;
 import static org.opencv.imgproc.Imgproc.rectangle;
 import static org.opencv.imgproc.Imgproc.resize;
@@ -442,19 +444,23 @@ public class ImageProcessing {
                 bitwise_and(newcolor, newcolor, finalcolor, mask_inv);
                 Mat nail_rawmaskedinv = new Mat();
                 bitwise_and(nail_raw, nail_raw, nail_rawmaskedinv, nail_rawmask_inv);
-                if(Math.round(nail_raw.size().width/2)+xminoff >=nail_raw.size().width || Math.round(nail_raw.size().height/2)+yminoff >=nail_raw.size().height){
-                    Point point = new Point(Math.round(nail_raw.size().width/2), Math.round(nail_raw.size().height/2));
-                    seamlessClone(nail_raw, finalcolor, nail_rawmaskedinv, point, finalcolor, MONOCHROME_TRANSFER);
-                } else{
-                    Point point = new Point(Math.round(nail_raw.size().width/2)+xminoff, Math.round(nail_raw.size().height/2)+yminoff);
-                    seamlessClone(nail_raw, finalcolor, nail_rawmaskedinv, point, finalcolor, MONOCHROME_TRANSFER);
-                }
-
                 //seamlessClone(nail_raw, finalcolor, nail_rawmaskedinv, point, finalcolor, MONOCHROME_TRANSFER);
 
                 //////////
                 Mat mixed = new Mat();
                 add(finalcolor, nailmasked, mixed);
+                // Apply Antialiasing to eliminate jagged results
+                medianBlur(mixed, mixed,5);
+                Size kSize = new Size(5, 5);
+                GaussianBlur(mixed, mixed, kSize ,0);
+                // copy illum info
+                if(Math.round(nail_raw.size().width/2)+xminoff >=nail_raw.size().width || Math.round(nail_raw.size().height/2)+yminoff >=nail_raw.size().height){
+                    Point point = new Point(Math.round(nail_raw.size().width/2), Math.round(nail_raw.size().height/2));
+                    seamlessClone(nail_raw, mixed, nail_rawmaskedinv, point, mixed, MONOCHROME_TRANSFER);
+                } else{
+                    Point point = new Point(Math.round(nail_raw.size().width/2)+xminoff, Math.round(nail_raw.size().height/2)+yminoff);
+                    seamlessClone(nail_raw, mixed, nail_rawmaskedinv, point, mixed, MONOCHROME_TRANSFER);
+                }
                 //////////
 
                 mixed.copyTo(image.submat(ymin, ymax, xmin, xmax));
