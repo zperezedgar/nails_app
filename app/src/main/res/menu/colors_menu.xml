@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/black_menu"
+        android:title="black" />
+    <item
+        android:id="@+id/blue_menu"
+        android:title="blue" />
+    <item
+        android:id="@+id/bright_red_menu"
+        android:title="bright-red" />
+    <item
+        android:id="@+id/cream_menu"
+        android:title="cream" />
+    <item
+        android:id="@+id/gold_menu"
+        android:title="gold" />
+    <item
+        android:id="@+id/gray_menu"
+        android:title="gray" />
+    <item
+        android:id="@+id/green_menu"
+        android:title="green" />
+    <item
+        android:id="@+id/hot_pink_menu"
+        android:title="hot-pink" />
+    <item
+        android:id="@+id/nude_menu"
+        android:title="nude" />
+    <item
+        android:id="@+id/pastel_pink_menu"
+        android:title="pastel-pink" />
+    <item
+        android:id="@+id/pink_menu"
+        android:title="pink" />
+    <item
+        android:id="@+id/red_menu"
+        android:title="red" />
+    <item
+        android:id="@+id/white_menu"
+        android:title="white" />
+    <item
+        android:id="@+id/wine_menu"
+        android:title="wine" />
+</menu>

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -33,6 +34,10 @@ public class MainActivity extends AppCompatActivity {
 
     static Bitmap imageBitmap;
     static Bitmap color;
+    public static int[] colors = {R.drawable.black, R.drawable.blue, R.drawable.bright_red, R.drawable.cream,
+                                R.drawable.gold, R.drawable.gray, R.drawable.green, R.drawable.hot_pink,
+                                R.drawable.nude, R.drawable.pastel_pink, R.drawable.pink, R.drawable.red,
+                                R.drawable.white, R.drawable.wine};
     static Bitmap nailmask;
     static Bitmap rthumbmask;
     static Bitmap lthumbmask;
@@ -44,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     public TextView tv4;
     public TextView tvpatches;
     public TextView tvSSD;
+    public TextView tvColor;
     public Switch gpuSwitch;
     public Switch leftSwitch;
     public Button runButton;
@@ -64,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //disable dark mode (for android >= 10)//
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        ////////////////////////////////////////
         setContentView(R.layout.activity_main);
 
         if (!OpenCVLoader.initDebug()) {
@@ -76,11 +85,13 @@ public class MainActivity extends AppCompatActivity {
         tv4 = (TextView) findViewById(R.id.textView4);
         tvpatches = (TextView) findViewById(R.id.tvpatches);
         tvSSD= (TextView) findViewById(R.id.tvSSD);
+        tvColor= (TextView) findViewById(R.id.tvColor);
         Iv = (ImageView) findViewById(R.id.imageView);
         //Iv2 = (ImageView) findViewById(R.id.imageView2);
 
         tvpatches.setText("Illum patches: " + illum_patches);
         tvSSD.setText("SSD 640X640");
+        tvColor.setText("Color: Wine");
 
         ////int drawableID = this.getResources().getIdentifier("finger", "drawable", getPackageName());
         imageBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.handmodel);
@@ -175,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.cvtColor(mat, mat8UC, Imgproc.COLOR_RGBA2RGB);
 
         // color
-        color = BitmapFactory.decodeResource(this.getResources(), R.drawable.bright_red);
+        color = BitmapFactory.decodeResource(this.getResources(), colors[13]);
         Mat colormat = new Mat();
         Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
         Utils.bitmapToMat(colorbmp32, colormat);
@@ -258,6 +269,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ssdMenu(v);
+            }
+        });
+
+        tvColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                colorMenu(v);
             }
         });
     }
@@ -365,6 +383,176 @@ public class MainActivity extends AppCompatActivity {
         popup.inflate(R.menu.ssd_version_menu);
         popup.show();
 
+    }
+
+    public void colorMenu(View v) {
+        PopupMenu popup = new PopupMenu(getApplicationContext(), v);
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if(item.getItemId() == R.id.black_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[0]);
+                    tvColor.setText("Color: Black");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.blue_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[1]);
+                    tvColor.setText("Color: Blue");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.bright_red_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[2]);
+                    tvColor.setText("Color: Bright-red");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.cream_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[3]);
+                    tvColor.setText("Color: Cream");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.gold_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[4]);
+                    tvColor.setText("Color: Gold");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.gray_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[5]);
+                    tvColor.setText("Color: Gray");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.green_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[6]);
+                    tvColor.setText("Color: Green");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.hot_pink_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[7]);
+                    tvColor.setText("Color: Hot-pink");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.nude_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[8]);
+                    tvColor.setText("Color: Nude");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.pastel_pink_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[9]);
+                    tvColor.setText("Color: Pastel-pink");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.pink_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[10]);
+                    tvColor.setText("Color: Pink");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.red_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[11]);
+                    tvColor.setText("Color: Red");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.white_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[12]);
+                    tvColor.setText("Color: White");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else if(item.getItemId() == R.id.wine_menu){
+                    color=BitmapFactory.decodeResource(getApplicationContext().getResources(), colors[13]);
+                    tvColor.setText("Color: Wine");
+                    // COLOR //
+                    Mat colormat = new Mat();
+                    Bitmap colorbmp32 = color.copy(Bitmap.Config.RGB_565, true);
+                    Utils.bitmapToMat(colorbmp32, colormat);
+                    colormat8UC = new Mat(colormat.size(), CvType.CV_8UC(3));
+                    Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
+                    ///////////
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        popup.inflate(R.menu.colors_menu);
+        popup.show();
     }
 
     private static final int RESULT_LOAD_IMG = 1;

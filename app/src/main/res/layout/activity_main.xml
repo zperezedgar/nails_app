@@ -85,20 +85,9 @@
             android:id="@+id/textView4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FFE8E8E8" />
+            android:background="#FFE8E8E8"
+            android:text="TextView" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvpatches"
-        android:layout_width="wrap_content"
-        android:layout_height="19dp"
-        android:background="#603F51B5"
-        android:text=">Illum Patches"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/tvSSD"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -114,16 +103,41 @@
         app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@android:drawable/ic_menu_gallery" />
 
-    <TextView
-        android:id="@+id/tvSSD"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#603F51B5"
-        android:text=">SSD 320"
-        android:textStyle="bold"
+        android:layout_height="0dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button"
-        app:layout_constraintTop_toBottomOf="@+id/tvpatches" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView">
+
+        <TextView
+            android:id="@+id/tvColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#603F51B5"
+            android:padding="5dp"
+            android:text="Color: Wine"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvSSD"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#603F51B5"
+            android:padding="5dp"
+            android:text="SSD 320"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvpatches"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#603F51B5"
+            android:padding="5dp"
+            android:text="Illum Patches"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
