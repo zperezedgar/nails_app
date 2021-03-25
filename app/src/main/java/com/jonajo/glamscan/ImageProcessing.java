@@ -17,6 +17,8 @@ import java.util.ArrayList;
 
 import static org.opencv.core.Core.add;
 import static org.opencv.core.Core.bitwise_and;
+import static org.opencv.core.Core.bitwise_not;
+import static org.opencv.core.Core.flip;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2GRAY;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX;
@@ -216,12 +218,15 @@ public class ImageProcessing {
      *           of the bounding boxes or any larger or smaller value.
      * @param minscore //Minimum score needed to consider that the bounding box predicted has a nail in it.
      * @param showBoxes //Whether we want to display or not the bounding boxes and the angles provided for the image.
+     * @param houtlinemask // mask to show a predefined hand outline
+     * @param showOutline // wheter we want to show hand's outline
      * @return //The processed image with nails painted.
      */
     public static Mat paintNail(Mat frame, Mat color, Mat nail_mask, Mat rthumb_mask, Mat lthumb_mask,
                                    float[][] boxespred, float[] scorespred, float[] angles, float[][] point2coords,
                                    Boolean isLeftHand, String nailsize, float[] orgsize, int  nailpatches,
-                                   int illum_offset, int resolution, float minscore, Boolean showBoxes){
+                                   int illum_offset, int resolution, float minscore, Boolean showBoxes, Mat houtlinemask,
+                                Boolean showOutline){
 
         Size modelsize = new Size(resolution, resolution);
         Mat image = new Mat();
@@ -243,7 +248,15 @@ public class ImageProcessing {
             }
         }
 
-        //cvtColor(color, color, COLOR_BGR2RGB);
+        // resize hand outline contour
+        Mat handContour = new Mat();
+        Size finalsize = new Size(orgsize[0], orgsize[1]);
+        if(showOutline){
+            resize(houtlinemask, handContour, finalsize);
+            if(isLeftHand){
+                flip(handContour, handContour, 1);
+            }
+        }
 
         for(int pred=0; pred<scorespred.length; pred++){
             if(scorespred[pred] > minscore){
@@ -479,11 +492,23 @@ public class ImageProcessing {
                 ////////////////
             }
         }
-        // resize to orIginal ratio
-        Mat finalimage = new Mat();
-        Size finalsize = new Size(orgsize[0], orgsize[1]);
-        resize(image, finalimage, finalsize);
 
-        return finalimage;
+        Mat finalimage = new Mat();
+
+        if(showOutline){
+            // resize to orIginal ratio
+            resize(image, finalimage, finalsize);
+            // add hand outline
+            Mat finalimageoutline = new Mat();
+            add(finalimage, handContour, finalimageoutline);
+
+            return finalimageoutline;
+
+        } else{
+            resize(image, finalimage, finalsize);
+
+            return finalimage;
+        }
+
     }
 }

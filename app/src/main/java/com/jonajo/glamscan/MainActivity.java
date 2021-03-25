@@ -30,6 +30,8 @@ import org.opencv.imgproc.Imgproc;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import static org.opencv.core.Core.bitwise_not;
+
 public class MainActivity extends AppCompatActivity {
 
     static Bitmap imageBitmap;
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     static Bitmap nailmask;
     static Bitmap rthumbmask;
     static Bitmap lthumbmask;
+    static Bitmap houtlinemask;
     public ImageView Iv;
     public ImageView Iv2;
     public TextView tv1;
@@ -52,12 +55,14 @@ public class MainActivity extends AppCompatActivity {
     public TextView tvColor;
     public Switch gpuSwitch;
     public Switch leftSwitch;
+    public Switch outlineSwitch;
     public Button runButton;
     public Mat mat8UC;
     public Mat colormat8UC;
     public Mat nailmaskmat8UC;
     public Mat rthumbmaskmat8UC;
     public Mat lthumbmaskmat8UC;
+    public Mat houtlinemaskmat8UC;
     double startTime;
     double endTime;
     double totalstartTime;
@@ -217,6 +222,15 @@ public class MainActivity extends AppCompatActivity {
         lthumbmaskmat8UC = new Mat(lthumbmaskmat.size(), CvType.CV_8UC(3));
         Imgproc.cvtColor(lthumbmaskmat, lthumbmaskmat8UC, Imgproc.COLOR_RGBA2RGB);
 
+        // hand outline mask
+        houtlinemask = BitmapFactory.decodeResource(this.getResources(), R.drawable.hand_outline_2);
+        Mat houtlinemaskmat = new Mat();
+        Bitmap houtlinemaskbmp32 = houtlinemask.copy(Bitmap.Config.RGB_565, true);
+        Utils.bitmapToMat(houtlinemaskbmp32, houtlinemaskmat);
+        houtlinemaskmat8UC = new Mat(houtlinemaskmat.size(), CvType.CV_8UC(3));
+        Imgproc.cvtColor(houtlinemaskmat, houtlinemaskmat8UC, Imgproc.COLOR_RGBA2RGB);
+        bitwise_not(houtlinemaskmat8UC, houtlinemaskmat8UC);
+
         /*Boolean isleftHand = false;
         String nailsize = "medium";
         float[] orgsize = {(float) mat8UC.size().width, (float) mat8UC.size().height};
@@ -242,18 +256,19 @@ public class MainActivity extends AppCompatActivity {
         Iv.setImageBitmap(resultBitmap);*/
         ///////////////////////////////////////////////////////////////////////////////////
 
-        re_runModel(false, false, ssdVersion);
+        re_runModel(false, false, false, ssdVersion);
 
         ///////////////////////////////////////////////////////////////////////////////////
         ////////////////////// Testing Listener //////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////
         gpuSwitch = (Switch) findViewById(R.id.switch1);
         leftSwitch = (Switch) findViewById(R.id.switch2);
+        outlineSwitch = (Switch) findViewById(R.id.switch3);
         runButton = (Button) findViewById(R.id.button);
         runButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                re_runModel(gpuSwitch.isChecked(), leftSwitch.isChecked(), ssdVersion);
+                re_runModel(gpuSwitch.isChecked(), leftSwitch.isChecked(), outlineSwitch.isChecked(), ssdVersion);
             }
         });
         ///////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void re_runModel(Boolean useGPU, Boolean leftHand, String ssdVersion){
+    public void re_runModel(Boolean useGPU, Boolean leftHand, Boolean showOutline,  String ssdVersion){
         totalstartTime = System.nanoTime();
 
         // landmark model
@@ -312,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
         startTime = System.nanoTime();
         Mat result = ImageProcessing.paintNail(mat8UC, colormat8UC, nailmaskmat8UC, rthumbmaskmat8UC, lthumbmaskmat8UC,
                 boxes, scores, angles, point2coords, isleftHand, nailsize, orgsize, nailpatches, illum_ofset,
-                resolution, minscore, showBoxes);
+                resolution, minscore, showBoxes, houtlinemaskmat8UC, showOutline);
         endTime = System.nanoTime();
         tv3.setText("Coloring Time = " + (endTime - startTime)*0.000001 + "ms");
 
