@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.cvtColor(colormat, colormat8UC, Imgproc.COLOR_RGBA2RGB);
 
         // nails mask
-        nailmask = BitmapFactory.decodeResource(this.getResources(), R.drawable.newnail_model);
+        nailmask = BitmapFactory.decodeResource(this.getResources(), R.drawable.nail);
         Mat nailmaskmat = new Mat();
         Bitmap nailmaskbmp32 = nailmask.copy(Bitmap.Config.RGB_565, true);
         Utils.bitmapToMat(nailmaskbmp32, nailmaskmat);
@@ -321,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
         float[] orgsize = {(float) mat8UC.size().width, (float) mat8UC.size().height};
         int nailpatches = illum_patches;
         int illum_ofset = 6;
-        int resolution = 1280;
+        int resolution = 1080;
         Boolean showBoxes = false;
 
         startTime = System.nanoTime();

@@ -189,6 +189,7 @@ public class handLandmarkModel {
     // run the model in current thread
     private void runLandmarkModel(){
         String modelName = "hand_landmark.tflite";
+        //String modelName = "hand_landmark_sparse.tflite"; // this model also can predict the handesdness of the image though its execution time is larger
 
         //To convert the image into the tensor format required by the TensorFlow Lite interpreter, create a TensorImage to be used as input:
         // Initialization code

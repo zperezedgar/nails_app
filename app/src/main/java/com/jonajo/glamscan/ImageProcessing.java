@@ -215,7 +215,10 @@ public class ImageProcessing {
      * @param nailpatches //Number of local patches used to adjust illumination.
      * @param illum_offset //This value increases the number of pixels used to average illumination.
      * @param resolution //Resolution used during the coloring process, it can be the size of the square image used in the prediction
-     *           of the bounding boxes or any larger or smaller value.
+     *                   of the bounding boxes or any other value >0.
+     *                   This parameter exists because it is more efficient to perform image processing
+     *                   with a low resolution version of frame and at the end resize the result to the original size
+     *                   and paste it into frame so frame is never resized.
      * @param minscore //Minimum score needed to consider that the bounding box predicted has a nail in it.
      * @param showBoxes //Whether we want to display or not the bounding boxes and the angles provided for the image.
      * @param houtlinemask // mask to show a predefined hand outline
@@ -236,10 +239,11 @@ public class ImageProcessing {
         int finger=0;
         float factor = resolution/224.f; // landmarks are obtained with images of size 224X224
 
+        Mat imageOrg = frame.clone(); // original image never resize so the its resolution is preserved
+        image = frame.clone(); // create a copy of the image to resize (so original image is never resized)
+
         if(frame.size() != modelsize){
             resize(frame, image, modelsize);
-        } else{
-            image = frame.clone();
         }
 
         for(int i=0; i<boxespred.length; i++){
@@ -268,9 +272,9 @@ public class ImageProcessing {
                 /////////////////////////
                 // check is nail's size is normal, medium or large
                 if(nailsize.equals("medium")){
-                    xminoff=19;
-                    yminoff=23;
-                    xmaxoff=19;
+                    xminoff=30;
+                    yminoff=15;
+                    xmaxoff=30;
                     ymaxoff=19;
                     ymin = ymin_raw - yminoff;
                     ymax = ymax_raw + ymaxoff;
@@ -463,6 +467,10 @@ public class ImageProcessing {
                 Mat mixed = new Mat();
                 add(finalcolor, nailmasked, mixed);
                 // Apply Antialiasing to eliminate jagged results
+                /*Size mixedSize = mixed.size();
+                Size mixedSizeLarge = new Size(4000, 4000);
+                resize(mixed, mixed, mixedSizeLarge);
+                resize(mixed, mixed, mixedSize);*/
                 medianBlur(mixed, mixed,5);
                 Size kSize = new Size(5, 5);
                 GaussianBlur(mixed, mixed, kSize ,0);
@@ -476,7 +484,16 @@ public class ImageProcessing {
                 }
                 //////////
 
-                mixed.copyTo(image.submat(ymin, ymax, xmin, xmax));
+                //mixed.copyTo(image.submat(ymin, ymax, xmin, xmax));
+                double xfactor = frame.size().width/image.size().width;
+                double yfactor = frame.size().height/image.size().height;
+                // Warning: round error may cause the copyTo function to not work!!
+                Size fullmixed = new Size((int)(Math.round(xmax*xfactor) - Math.round(xmin*xfactor)), (int)(Math.round(ymax*yfactor) - Math.round(ymin*yfactor)));
+                resize(mixed, mixed, fullmixed);
+                mixed.copyTo(imageOrg.submat((int) Math.round(ymin*yfactor),
+                        (int) Math.round(ymax*yfactor),
+                        (int) Math.round(xmin*xfactor),
+                        (int) Math.round(xmax*xfactor)));
 
                 ////////////////
                 // Show raw bounding boxes and rot angles
@@ -497,17 +514,17 @@ public class ImageProcessing {
 
         if(showOutline){
             // resize to orIginal ratio
-            resize(image, finalimage, finalsize);
+            //resize(image, finalimage, finalsize);
             // add hand outline
             Mat finalimageoutline = new Mat();
-            add(finalimage, handContour, finalimageoutline);
+            add(imageOrg, handContour, finalimageoutline);
 
             return finalimageoutline;
 
         } else{
-            resize(image, finalimage, finalsize);
+            //resize(image, finalimage, finalsize);
 
-            return finalimage;
+            return imageOrg;
         }
 
     }
