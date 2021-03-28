@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         tvColor.setText("Color: Wine");
 
         ////int drawableID = this.getResources().getIdentifier("finger", "drawable", getPackageName());
-        imageBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.handmodel);
+        imageBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.hand_revlon);
         //Iv.setImageBitmap(imageBitmap);
 
         ///////////////////////////////////////////////////////////////////////////////////
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.cvtColor(nailmaskmat, nailmaskmat8UC, Imgproc.COLOR_RGBA2RGB);
 
         // right thumb mask
-        rthumbmask = BitmapFactory.decodeResource(this.getResources(), R.drawable.rthumb_modelv3);
+        rthumbmask = BitmapFactory.decodeResource(this.getResources(), R.drawable.rnail_side);
         Mat rthumbmaskmat = new Mat();
         Bitmap rthumbmaskbmp32 = rthumbmask.copy(Bitmap.Config.RGB_565, true);
         Utils.bitmapToMat(rthumbmaskbmp32, rthumbmaskmat);
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.cvtColor(rthumbmaskmat, rthumbmaskmat8UC, Imgproc.COLOR_RGBA2RGB);
 
         // left thumb mask
-        lthumbmask = BitmapFactory.decodeResource(this.getResources(), R.drawable.lthumb_modelv3);
+        lthumbmask = BitmapFactory.decodeResource(this.getResources(), R.drawable.lnail_side);
         Mat lthumbmaskmat = new Mat();
         Bitmap lthumbmaskbmp32 = lthumbmask.copy(Bitmap.Config.RGB_565, true);
         Utils.bitmapToMat(lthumbmaskbmp32, lthumbmaskmat);

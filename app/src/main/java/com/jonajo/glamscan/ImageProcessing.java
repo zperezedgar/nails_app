@@ -272,9 +272,9 @@ public class ImageProcessing {
                 /////////////////////////
                 // check is nail's size is normal, medium or large
                 if(nailsize.equals("medium")){
-                    xminoff=30;
+                    xminoff=15;
                     yminoff=15;
-                    xmaxoff=30;
+                    xmaxoff=15;
                     ymaxoff=19;
                     ymin = ymin_raw - yminoff;
                     ymax = ymax_raw + ymaxoff;
@@ -320,6 +320,9 @@ public class ImageProcessing {
                 }
                 /////////////////////////
 
+                double xfactor = frame.size().width/image.size().width;
+                double yfactor = frame.size().height/image.size().height;
+
                 /////////////////////////
                 // find the corresponding rot angle
                 // use horizontal coordinates to find the finger number
@@ -327,6 +330,8 @@ public class ImageProcessing {
                 for(int i=0; i<angles.length; i++){
                     if((point2coords[i][0]*factor >= xmin) && (point2coords[i][0]*factor <= xmax)){
                         angle = angles[i];
+                        // correct the angle to account resize distortion
+                        //angle = (float) (Math.atan(Math.tan(angle)*yfactor/xfactor)*360/(2*Math.PI));
                         if(isLeftHand){
                             finger = i;
                         } else{
@@ -485,8 +490,6 @@ public class ImageProcessing {
                 //////////
 
                 //mixed.copyTo(image.submat(ymin, ymax, xmin, xmax));
-                double xfactor = frame.size().width/image.size().width;
-                double yfactor = frame.size().height/image.size().height;
                 // Warning: round error may cause the copyTo function to not work!!
                 Size fullmixed = new Size((int)(Math.round(xmax*xfactor) - Math.round(xmin*xfactor)), (int)(Math.round(ymax*yfactor) - Math.round(ymin*yfactor)));
                 resize(mixed, mixed, fullmixed);
