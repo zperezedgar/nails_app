@@ -16,15 +16,19 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 
 import static org.opencv.core.Core.add;
+import static org.opencv.core.Core.addWeighted;
 import static org.opencv.core.Core.bitwise_and;
 import static org.opencv.core.Core.bitwise_not;
 import static org.opencv.core.Core.flip;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2GRAY;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
+import static org.opencv.imgproc.Imgproc.Canny;
 import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX;
 import static org.opencv.imgproc.Imgproc.GaussianBlur;
+import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY_INV;
 import static org.opencv.imgproc.Imgproc.cvtColor;
+import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
 import static org.opencv.imgproc.Imgproc.medianBlur;
 import static org.opencv.imgproc.Imgproc.putText;
@@ -239,11 +243,12 @@ public class ImageProcessing {
         int finger=0;
         float factor = resolution/224.f; // landmarks are obtained with images of size 224X224
 
-        Mat imageOrg = frame.clone(); // original image never resize so the its resolution is preserved
-        image = frame.clone(); // create a copy of the image to resize (so original image is never resized)
+        Mat imageOrg = frame.clone(); // original image never resized so the its resolution is preserved
 
         if(frame.size() != modelsize){
             resize(frame, image, modelsize);
+        } else{
+            image = frame.clone(); // create a copy of the image to resize (so original image is never resized)
         }
 
         for(int i=0; i<boxespred.length; i++){
@@ -272,9 +277,9 @@ public class ImageProcessing {
                 /////////////////////////
                 // check is nail's size is normal, medium or large
                 if(nailsize.equals("medium")){
-                    xminoff=15;
+                    xminoff=29;
                     yminoff=15;
-                    xmaxoff=15;
+                    xmaxoff=29;
                     ymaxoff=19;
                     ymin = ymin_raw - yminoff;
                     ymax = ymax_raw + ymaxoff;
@@ -472,13 +477,30 @@ public class ImageProcessing {
                 Mat mixed = new Mat();
                 add(finalcolor, nailmasked, mixed);
                 // Apply Antialiasing to eliminate jagged results
+                Mat org_mixed = mixed.clone();
+                Mat edges = new Mat();
+                Canny(finalcolor, edges, 100, 200);
+                Mat kernel = Mat.ones(9, 9, CvType.CV_8UC(1));
+                Point anchor = new Point(-1,-1); // default value
+                dilate(edges, edges, kernel, anchor, 7); // dilate edges to make them larger
+                double ret = Imgproc.threshold(edges, edges, 0 ,255, THRESH_BINARY);
+                Mat inv_edges = new Mat();
+                bitwise_not(edges, inv_edges);
+                Size kSize = new Size(7, 7);
+                GaussianBlur(mixed, mixed, kSize, 0);
+                Mat mixed_masked = new Mat();
+                bitwise_and(mixed, mixed, mixed_masked, edges);
+                Mat mixed_masked_inv = new Mat();
+                bitwise_and(org_mixed, org_mixed, mixed_masked_inv, inv_edges);
+                add(mixed_masked, mixed_masked_inv, mixed);
                 /*Size mixedSize = mixed.size();
                 Size mixedSizeLarge = new Size(4000, 4000);
                 resize(mixed, mixed, mixedSizeLarge);
-                resize(mixed, mixed, mixedSize);*/
+                resize(mixed, mixed, mixedSize);
                 medianBlur(mixed, mixed,5);
                 Size kSize = new Size(5, 5);
-                GaussianBlur(mixed, mixed, kSize ,0);
+                GaussianBlur(mixed, mixed, kSize ,0);*/
+
                 // copy illum info
                 if(Math.round(nail_raw.size().width/2)+xminoff >=nail_raw.size().width || Math.round(nail_raw.size().height/2)+yminoff >=nail_raw.size().height){
                     Point point = new Point(Math.round(nail_raw.size().width/2), Math.round(nail_raw.size().height/2));
@@ -490,13 +512,37 @@ public class ImageProcessing {
                 //////////
 
                 //mixed.copyTo(image.submat(ymin, ymax, xmin, xmax));
+                Size mixed_size = mixed.size();
                 // Warning: round error may cause the copyTo function to not work!!
                 Size fullmixed = new Size((int)(Math.round(xmax*xfactor) - Math.round(xmin*xfactor)), (int)(Math.round(ymax*yfactor) - Math.round(ymin*yfactor)));
                 resize(mixed, mixed, fullmixed);
-                mixed.copyTo(imageOrg.submat((int) Math.round(ymin*yfactor),
+                org_mixed = mixed.clone();
+
+                resize(edges, edges, fullmixed);
+                threshold(edges, edges, 0, 255, THRESH_BINARY);
+                bitwise_not(edges, inv_edges);
+
+                GaussianBlur(mixed, mixed, kSize, 0);
+                bitwise_and(mixed, mixed, mixed_masked, edges);
+                bitwise_and(org_mixed, org_mixed, mixed_masked_inv, inv_edges);
+                add(mixed_masked, mixed_masked_inv, mixed);
+                // sharpen edges to enhance results
+                Mat mixed_copy = mixed.clone();
+                // option 1 use unsharp masking
+                Mat mixed_blur = new Mat();
+                Size size = new Size(0, 0);
+                GaussianBlur(mixed_copy, mixed_blur, size, 3);
+                Mat mixed_final = new Mat();
+                addWeighted(mixed, 1.5, mixed_blur, -0.5, 0, mixed_final);
+
+                // copy result to original image with full resolution
+                mixed_final.copyTo(imageOrg.submat((int) Math.round(ymin*yfactor),
                         (int) Math.round(ymax*yfactor),
                         (int) Math.round(xmin*xfactor),
                         (int) Math.round(xmax*xfactor)));
+                // copy result to image so result in current nail can't be cropped by another nail's result
+                resize(mixed_final, mixed_final, mixed_size);
+                mixed_final.copyTo(image.submat(ymin, ymax, xmin, xmax));
 
                 ////////////////
                 // Show raw bounding boxes and rot angles
@@ -521,6 +567,7 @@ public class ImageProcessing {
             // add hand outline
             Mat finalimageoutline = new Mat();
             add(imageOrg, handContour, finalimageoutline);
+            //addWeighted(imageOrg, 1, handContour, 0.4, 0, finalimageoutline);
 
             return finalimageoutline;
 
