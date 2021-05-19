@@ -386,9 +386,9 @@ public class MainActivity extends AppCompatActivity {
                     minscore = 0.36f;
                     return true;
                 } else if (item.getItemId() == R.id.ssd640) {
-                    ssdVersion = "tflite_nail_640.tflite";
+                    ssdVersion = "ssd_mobilenet_v3_nails_quant.tflite";
                     tvSSD.setText("SSD 640X640");
-                    minscore = 0.81f;
+                    minscore = 0.6f;
                     return true;
                 }  else{
                     return false;
@@ -616,6 +616,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PERMISSION_REQUEST_CODE_GALERIA:
                 // If request is cancelled, the result arrays are empty.
@@ -628,7 +629,7 @@ public class MainActivity extends AppCompatActivity {
                     photoPickerIntent.setType("image/*");
                     startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
 
-                }  else {
+                } else {
                     // Explain to the user that the feature is unavailable because
                     // the features requires a permission that the user has denied.
                     // At the same time, respect the user's decision. Don't link to
