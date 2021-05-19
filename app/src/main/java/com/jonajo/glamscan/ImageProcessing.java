@@ -277,10 +277,10 @@ public class ImageProcessing {
                 /////////////////////////
                 // check is nail's size is normal, medium or large
                 if(nailsize.equals("medium")){
-                    xminoff=29;
-                    yminoff=15;
-                    xmaxoff=29;
-                    ymaxoff=19;
+                    xminoff=33; //29
+                    yminoff=15; //15
+                    xmaxoff=33; //29
+                    ymaxoff=15; //19
                     ymin = ymin_raw - yminoff;
                     ymax = ymax_raw + ymaxoff;
                     xmin = xmin_raw - xminoff;
