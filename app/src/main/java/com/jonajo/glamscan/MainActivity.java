@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
     double totalendTime;
     int illum_patches=5;
     static Uri photoURI;
-    public String ssdVersion = "ssd_mobilenet_v3_nails_quant.tflite"; //"tflite_nail_640.tflite";
-    float minscore = 0.6f;//0.81f;
+    public String ssdVersion = "ssd_mobilenet_v2_nails_v4_640_quant.tflite"; //"tflite_nail_640.tflite";
+    float minscore = 0.5f;//0.6f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
